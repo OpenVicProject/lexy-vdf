@@ -114,7 +114,7 @@ constexpr Parser& Parser::load_from_file(const char* path) {
 	return *this;
 }
 
-constexpr Parser& Parser::load_from_file(const char* path, const Parser& root) {
+Parser& Parser::load_from_file(const char* path, const Parser& root) {
 	_file_path = path;
 	_run_load_func(std::mem_fn(&BufferHandler::load_file), path);
 	_parser_state.conditionals = root._parser_state.conditionals;

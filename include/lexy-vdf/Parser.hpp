@@ -31,7 +31,7 @@ namespace lexy_vdf {
 		constexpr Parser& load_from_buffer(const char* start, const char* end);
 		constexpr Parser& load_from_string(std::string_view string);
 		constexpr Parser& load_from_file(const char* path);
-		constexpr Parser& load_from_file(const char* path, const Parser& root);
+		Parser& load_from_file(const char* path, const Parser& root);
 		Parser& load_from_file(const std::filesystem::path& path);
 
 		constexpr Parser& load_from_file(const detail::Has_c_str auto& path) {
