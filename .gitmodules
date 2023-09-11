@@ -1,0 +1,4 @@
+[submodule "deps/lexy"]
+	path = deps/lexy
+	url = git@github.com:foonathan/lexy.git
+	ignore = dirty

@@ -1,0 +1,35 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "cppdbg",
+            "request": "launch",
+            "name": "Debug",
+            "program": "${workspaceFolder}/bin/lexy-vdf.headless.linux.template_debug.dev.x86_64",
+            "args": [],
+            "cwd": "${workspaceFolder}/bin",
+            "preLaunchTask": "dev_build",
+            "windows": {
+                "type": "cppvsdb",
+                "request": "launch",
+                "name": "Debug",
+                "program": "${workspaceFolder}\\bin\\lexy-vdf.headless.windows.template_debug.dev.x86_64",
+                "args": [],
+                "cwd": "${workspaceFolder}\\bin",
+                "preLaunchTask": "dev_build",
+            },
+            "osx": {
+                "type": "cppvsdb",
+                "request": "launch",
+                "name": "Debug",
+                "program": "${workspaceFolder}/bin/", // TODO: Mac executable?
+                "args": [],
+                "cwd": "${workspaceFolder}/bin",
+                "preLaunchTask": "dev_build",
+            }
+        }
+    ]
+}
