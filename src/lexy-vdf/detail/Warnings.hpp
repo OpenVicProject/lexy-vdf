@@ -4,9 +4,10 @@
 
 #include <lexy-vdf/KeyValues.hpp>
 #include <lexy-vdf/ParseWarning.hpp>
+#include <lexy-vdf/detail/OptionalConstexpr.hpp>
 
 namespace lexy_vdf::warnings {
-	constexpr std::optional<ParseWarning> merge_check(std::string_view file, KeyValues::MergeError merge_error) {
+	LVDF_OPTIONAL_CONSTEXPR std::optional<ParseWarning> merge_check(std::string_view file, KeyValues::MergeError merge_error) {
 		switch (merge_error) {
 			case KeyValues::MergeError::FileMissing:
 				return ParseWarning { "Could not find '" + std::string(file) + "'.", 1 };
