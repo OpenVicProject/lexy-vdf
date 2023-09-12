@@ -38,6 +38,7 @@ private:
 Parser::Parser()
 	: _buffer_handler(std::make_unique<BufferHandler>()) {
 	set_error_log_to_stderr();
+	set_default_conditions();
 	_parser_state.parse_warnings = &_warnings;
 }
 
@@ -156,10 +157,41 @@ const Parser::State Parser::get_parse_state() const {
 	return _parser_state;
 }
 
+void Parser::set_default_conditions() {
+	// Sourced from https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/sp/src/tier1/KeyValues.cpp
+	// Platform conditions sourced from https://github.com/ValveSoftware/source-sdk-2013/blob/0d8dceea4310fde5706b3ce1c70609d72a38efdf/sp/src/public/tier0/platform.h#L85
+#if defined(_X360)
+	add_condition("X360");
+#elif defined(WIN32)
+	add_condition("WIN32");
+	add_condition("WINDOWS");
+#elif defined(__APPLE__)
+	add_condition("WIN32");
+	add_condition("POSIX");
+	add_condition("OSX");
+#elif defined(__linux__)
+	add_condition("WIN32");
+	add_condition("POSIX");
+	add_condition("LINUX");
+#else
+	// Any other default conditions
+#endif
+}
+
+void Parser::clear_conditions() {
+	_parser_state.conditionals.clear();
+}
+
 void Parser::add_condition(std::string_view conditional) {
 	_parser_state.conditionals.insert(conditional.data());
 }
 
 bool Parser::remove_condition(std::string_view conditional) {
-	return _parser_state.conditionals.erase(conditional.data()) == 1;
+	auto found = _parser_state.conditionals.find(conditional);
+	if (found == _parser_state.conditionals.end()) return false;
+	return _parser_state.conditionals.erase(*found) == 1;
+}
+
+bool Parser::has_condition(std::string_view conditional) const {
+	return _parser_state.has_condition(conditional);
 }

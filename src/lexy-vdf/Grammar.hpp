@@ -162,7 +162,7 @@ namespace lexy_vdf::grammar {
 				[](auto) { return true; },
 				[](Parser::State& state, bool val) { return val; },
 				[](Parser::State& state, std::string&& val) {
-					return state.conditionals.find(val) != state.conditionals.end();
+					return state.has_condition(val);
 				},
 				[](Parser::State& state, auto&& lhs, ConditionalType&& type, auto&& rhs) {
 					using left_t = std::decay_t<decltype(lhs)>;
@@ -179,7 +179,7 @@ namespace lexy_vdf::grammar {
 					if constexpr (std::is_same_v<left_t, bool>) {
 						result = lhs;
 					} else {
-						result = state.conditionals.find(lhs) != state.conditionals.end();
+						result = state.has_condition(lhs);
 					}
 
 					if constexpr (std::is_same_v<right_t, bool>) {
@@ -190,8 +190,8 @@ namespace lexy_vdf::grammar {
 						}
 					} else {
 						switch (type) {
-							case ConditionalType::And: return result && (state.conditionals.find(rhs) != state.conditionals.end());
-							case ConditionalType::Or: return result || (state.conditionals.find(rhs) != state.conditionals.end());
+							case ConditionalType::And: return result && state.has_condition(rhs);
+							case ConditionalType::Or: return result || state.has_condition(rhs);
 							default: break;
 						}
 					}
@@ -235,7 +235,7 @@ namespace lexy_vdf::grammar {
 					if constexpr (std::is_same_v<right_t, bool>) {
 						return !rhs;
 					} else {
-						return state.conditionals.find(rhs) == state.conditionals.end();
+						return !state.has_condition(rhs);
 					}
 				},
 				[](ConditionalType&&, auto&& rhs) {
