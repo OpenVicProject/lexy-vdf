@@ -15,8 +15,12 @@ namespace lexy_vdf {
 	class Parser final : public detail::BasicParser {
 	public:
 		struct State {
-			std::unordered_set<std::string> conditionals;
+			std::unordered_set<std::string, string_hash, std::equal_to<>> conditionals;
 			std::vector<ParseWarning>* parse_warnings;
+
+			inline bool has_condition(std::string_view conditional) const {
+				return conditionals.find(conditional) != conditionals.end();
+			}
 		};
 
 		Parser();
@@ -45,8 +49,12 @@ namespace lexy_vdf {
 
 		const State get_parse_state() const;
 
+		void set_default_conditions();
+		void clear_conditions();
+
 		void add_condition(std::string_view conditional);
 		bool remove_condition(std::string_view conditional);
+		bool has_condition(std::string_view conditional) const;
 
 		Parser(Parser&&);
 		Parser& operator=(Parser&&);
