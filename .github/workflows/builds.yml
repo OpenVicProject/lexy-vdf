@@ -64,9 +64,10 @@ jobs:
           submodules: recursive
 
       - name: Setup build cache
-        uses: ./.github/actions/setup-cache
+        uses: OpenVicProject/openvic-cache@master
         with:
           cache-name: ${{ matrix.identifier }}
+          base-branch: ${{ env.GH_BASE_BRANCH }}
         continue-on-error: true
 
       - name: Set up Python
@@ -93,10 +94,10 @@ jobs:
 
       - name: Setup MinGW for Windows/MinGW build
         if: ${{ matrix.platform == 'windows' }}
-        uses: ./.github/actions/mingw-cache
+        uses: OpenVicProject/mingw-cache@master
 
       - name: Compile with SCons
-        uses: ./.github/actions/scons-build
+        uses: OpenVicProject/openvic-build@master
         with:
           platform: ${{ matrix.platform }}
           target: ${{ matrix.target }}
