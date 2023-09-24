@@ -19,7 +19,7 @@ opts.Add(BoolVariable("build_lvdf_headless", "Build the lexy vdf headless execut
 
 env.FinalizeOptions()
 
-SConscript("deps/SCsub")
+SConscript("deps/SCsub", "env")
 
 env.lexy_vdf = {}
 
