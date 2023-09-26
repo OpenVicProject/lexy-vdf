@@ -36,7 +36,7 @@ source_path = "src/lexy-vdf"
 include_path = "include"
 env.Append(CPPPATH=[[env.Dir(p) for p in [source_path, include_path]]])
 sources = env.GlobRecursive("*.cpp", [source_path])
-env.dataloader_sources = sources
+env.lexy_vdf_sources = sources
 
 suffix = ".{}.{}".format(env["platform"], env["target"])
 if env.dev_build:
