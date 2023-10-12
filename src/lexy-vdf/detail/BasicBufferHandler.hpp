@@ -18,7 +18,7 @@ namespace lexy_vdf::detail {
 		using encoding_type = Encoding;
 
 		LVDF_OPTIONAL_CONSTEXPR bool is_valid() const {
-			return _buffer.size() != 0;
+			return _buffer.data() != nullptr;
 		}
 
 		LVDF_OPTIONAL_CONSTEXPR std::optional<lexy_vdf::ParseError> load_buffer_size(const char* data, std::size_t size) {
