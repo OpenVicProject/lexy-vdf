@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <filesystem>
 #include <initializer_list>
-#include <optional>
 #include <string>
 #include <string_view>
 #include <unordered_map>

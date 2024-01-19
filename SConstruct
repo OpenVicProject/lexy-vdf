@@ -55,7 +55,7 @@ library_name = "liblexy-vdf{}{}".format(suffix, env["LIBSUFFIX"])
 default_args = []
 
 if env["build_lvdf_library"]:
-    library = env.StaticLibrary(target=os.path.join(BINDIR, library_name), source=sources)
+    library = env.StaticLibrary(target=env.File(os.path.join(BINDIR, library_name)), source=sources)
     default_args += [library]
 
     env.Append(LIBPATH=[env.Dir(BINDIR)])
@@ -75,7 +75,7 @@ if env["build_lvdf_headless"]:
     headless_env.Append(CPPDEFINES=["LEXY_VDF_HEADLESS"])
     headless_env.Append(CPPPATH=[headless_env.Dir(headless_path)])
     headless_env.headless_sources = env.GlobRecursive("*.cpp", headless_path)
-    if not env["build_lvdf_headless"]:
+    if not env["build_lvdf_library"]:
         headless_env.headless_sources += sources
     headless_program = headless_env.Program(
         target=os.path.join(BINDIR, headless_name),
