@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+#include <ostream>
 #include <vector>
 
 #include <lexy-vdf/ParseError.hpp>
