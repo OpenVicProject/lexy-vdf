@@ -54,13 +54,12 @@ env.lexy_vdf = {}
 # tweak this if you want to use different folders, or more folders, to store your source code in.
 source_path = "src/lexy-vdf"
 include_path = "include"
-# Mirror the lexy-vdf source tree into the per-config build dir.
+# Out-of-source build: variant tree holds object files only, not copies of the
+# source. Compile diagnostics therefore reference original source paths.
 lexyvdf_variant = build_dir + "/" + source_path
-env.VariantDir(lexyvdf_variant, source_path, duplicate=True)
-# Variant-only CPPPATH for source_path; include_path stays source-side as the
-# public API root.
-env.Append(CPPPATH=[[env.Dir(p) for p in [include_path, lexyvdf_variant]]])
-sources = env.GlobRecursive("*.cpp", [lexyvdf_variant])
+env.VariantDir(lexyvdf_variant, source_path, duplicate=False)
+env.Append(CPPPATH=[[env.Dir(p) for p in [include_path, lexyvdf_variant, source_path]]])
+sources = env.GlobRecursiveVariant("*.cpp", source_path, lexyvdf_variant)
 env.lexy_vdf_sources = sources
 
 library = None
@@ -88,10 +87,10 @@ if env["build_lvdf_headless"]:
     headless_env = env.Clone()
     headless_src = "src/headless"
     headless_variant = build_dir + "/" + headless_src
-    headless_env.VariantDir(headless_variant, headless_src, duplicate=True)
+    headless_env.VariantDir(headless_variant, headless_src, duplicate=False)
     headless_env.Append(CPPDEFINES=["LEXY_VDF_HEADLESS"])
-    headless_env.Append(CPPPATH=[headless_env.Dir(headless_variant)])
-    headless_env.headless_sources = env.GlobRecursive("*.cpp", [headless_variant])
+    headless_env.Append(CPPPATH=[headless_env.Dir(headless_variant), headless_env.Dir(headless_src)])
+    headless_env.headless_sources = env.GlobRecursiveVariant("*.cpp", headless_src, headless_variant)
     if not env["build_lvdf_library"]:
         headless_env.headless_sources += sources
     headless_program = headless_env.Program(
