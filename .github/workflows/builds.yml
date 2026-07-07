@@ -1,149 +1,85 @@
-name: Builds
+name: 🖥️ Builds
 
-on: [push, pull_request]
-
-env:
-  GH_BASE_BRANCH: master
+on:
+  push:
+    branches: ['master']
+  pull_request:
+  merge_group:
+  workflow_dispatch:
 
 concurrency:
-  group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-macos
-  cancel-in-progress: true
+  group: ${{ github.workflow }}|${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions: {}
 
 jobs:
-  build:
-    runs-on: ${{matrix.os}}
-    name: ${{matrix.name}}
-    permissions: write-all
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - identifier: windows-debug
-            os: windows-latest
-            name: 🏁 Windows Debug
-            target: template_debug
-            platform: windows
-            arch: x86_64
-          - identifier: windows-release
-            os: windows-latest
-            name: 🏁 Windows Release
-            target: template_release
-            platform: windows
-            arch: x86_64
-          - identifier: macos-debug
-            os: macos-latest
-            name: 🍎 macOS (universal) Debug
-            target: template_debug
-            platform: macos
-            arch: universal
-          - identifier: macos-release
-            os: macos-latest
-            name: 🍎 macOS (universal) Release
-            target: template_release
-            platform: macos
-            arch: universal
-          - identifier: linux-debug
-            os: ubuntu-latest
-            name: 🐧 Linux Debug
-            runner: ubuntu-20.04
-            target: template_debug
-            platform: linux
-            arch: x86_64
-          - identifier: linux-release
-            os: ubuntu-latest
-            name: 🐧 Linux Release
-            runner: ubuntu-20.04
-            target: template_release
-            platform: linux
-            arch: x86_64
-
+  static-checks-builds:
+    name: 📊 Code style, file formatting, and docs
+    runs-on: ubuntu-latest
+    if: github.run_attempt > 1 || github.event_name == 'workflow_dispatch' || !vars.DISABLE_BUILDS
+    outputs:
+      changed-files: '"${{ steps.changed-files.outputs.clangd_all_changed_files }}"' # Wrap with quotes to bookend internal quote separators.
+      sources-changed: ${{ steps.changed-files.outputs.sources_any_changed }}
     steps:
       - name: Checkout project
-        uses: actions/checkout@v4.1.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           submodules: recursive
+          fetch-depth: 0 # Treeless clone. Slightly less performant than a shallow clone, but makes finding diffs instantaneous.
+          filter: tree:0 # See: https://github.blog/open-source/git/get-up-to-speed-with-partial-clone-and-shallow-clone/
+          persist-credentials: false
 
-      - name: Setup build cache
-        uses: OpenVicProject/openvic-cache@master
+      - name: Install APT dependencies
+        uses: awalsh128/cache-apt-pkgs-action@681749ae568c81c2037cb9185e38b709b261bd2f # v1.6.1
         with:
-          cache-name: ${{ matrix.identifier }}
-          base-branch: ${{ env.GH_BASE_BRANCH }}
-        continue-on-error: true
+          packages: libxml2-utils
 
-      - name: Set up Python
-        uses: actions/setup-python@v5.0.0
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@9426d40962ed5378910ee2e21d5f8c6fcbf2dd96 # v47.0.6
         with:
-          python-version: "3.x"
+          safe_output: false # Output passed to environment variable to avoid command injection.
+          separator: '" "' # To account for paths with spaces, ensure our items are split by quotes internally.
+          skip_initial_fetch: true
+          files_yaml_from_source_file: .github/changed-files.yml
 
-      - name: Set up SCons
-        shell: bash
-        run: |
-          python -c "import sys; print(sys.version)"
-          python -m pip install scons
-          scons --version
-
-      - name: Linux dependencies
-        if: ${{ matrix.platform == 'linux' }}
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -qqq build-essential pkg-config
-          g++ --version
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 12
-          sudo update-alternatives --set g++ /usr/bin/g++-12
-          g++ --version
-
-      - name: Compile with SCons
-        uses: OpenVicProject/openvic-build@master
+      - name: Style checks via prek
+        uses: j178/prek-action@bdca6f102f98e2b4c7029491a53dfd366469e33d # v2.0.4
+        env:
+          CHANGED_FILES: '"${{ steps.changed-files.outputs.pre-commit_all_changed_files }}"' # Wrap with quotes to bookend internal quote separators
         with:
-          platform: ${{ matrix.platform }}
-          target: ${{ matrix.target }}
-          sconsflags: arch=${{ matrix.arch }} build_lvdf_library=yes
+          extra-args: --files ${{ env.CHANGED_FILES }}
 
-      - name: Delete compilation files
-        if: ${{ matrix.platform == 'windows' }}
-        run: |
-          Remove-Item bin/* -Include *.exp,*.pdb -Force
-
-      - name: Upload library artifact
-        uses: actions/upload-artifact@v4.3.0
-        with:
-          name: ${{ github.event.repository.name }}-${{ matrix.identifier }}-library
-          path: |
-            ${{ github.workspace }}/bin/liblexy-vdf.*
-
-      - name: Upload executable artifact
-        uses: actions/upload-artifact@v4.3.0
-        with:
-          name: ${{ github.event.repository.name }}-${{ matrix.identifier }}-executable
-          path: |
-            ${{ github.workspace }}/bin/lexy-vdf.headless.*
-
-      - name: Archive Release
-        uses: thedoctor0/zip-release@0.7.6
-        with:
-          type: "zip"
-          filename: "../../../liblexy-vdf.${{ matrix.platform }}.${{ matrix.arch }}.zip"
-          directory: "${{ github.workspace }}/bin/"
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-
-      - name: Create and upload asset
-        uses: ncipollo/release-action@v1.13.0
-        with:
-          allowUpdates: true
-          artifacts: "liblexy-vdf.${{ matrix.platform }}.${{ matrix.arch }}.zip"
-          omitNameDuringUpdate: true
-          omitBodyDuringUpdate: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+  build-master:
+    name: 🛠️ Build
+    needs: static-checks-builds
+    if: needs.static-checks-builds.outputs.sources-changed == 'true' || github.event_name != 'pull_request'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/build-matrix.yml
 
   merge-library-files:
-    runs-on: ubuntu-latest
-    needs: build
     name: 📚 Merge Library Files
+    runs-on: ubuntu-latest
+    needs: build-master
     steps:
       - name: Merge Artifacts
-        uses: actions/upload-artifact/merge@v4.3.0
+        uses: actions/upload-artifact/merge@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           delete-merged: true
+          separate-directories: true
           name: ${{ github.event.repository.name }}-library
           pattern: ${{ github.event.repository.name }}-*-library
+
+  validate-master:
+    name: ✅ Validate Success
+    if: always()
+    needs: [static-checks-builds, build-master, merge-library-files]
+    runs-on: Ubuntu-latest
+    steps:
+      - name: Check
+        uses: re-actors/alls-green@a638d6464689bbb24c325bb3fe9404d63a913030
+        with:
+          allowed-skips: static-checks-builds, build-master, merge-library-files
+          jobs: ${{ toJson(needs) }}
