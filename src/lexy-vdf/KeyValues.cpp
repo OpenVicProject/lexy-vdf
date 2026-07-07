@@ -26,7 +26,7 @@ std::string_view trim(std::string_view str) {
 	return std::string_view(&*begin, std::distance(begin, end));
 }
 
-bool insenitive_trim_eq(std::string_view lhs, std::string_view rhs) {
+bool insensitive_trim_eq(std::string_view lhs, std::string_view rhs) {
 	lhs = trim(lhs);
 	rhs = trim(rhs);
 	return std::equal(
@@ -114,7 +114,7 @@ bool KeyValues::GetBool(KeyObserverType p_key, bool p_default_value) const {
 		if constexpr (std::is_same_v<T, std::int32_t> || std::is_same_v<T, std::float_t>) {
 			return arg;
 		} else if constexpr (std::is_same_v<T, std::string>) {
-			return insenitive_trim_eq("true", arg);
+			return insensitive_trim_eq("true", arg);
 		} else if constexpr (std::is_same_v<T, KeyValues>) {
 			if (arg.empty()) return false;
 			return true;
