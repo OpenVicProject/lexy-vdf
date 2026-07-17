@@ -1,7 +1,0 @@
-[submodule "deps/lexy"]
-	path = deps/lexy
-	url = https://github.com/foonathan/lexy
-	ignore = dirty
-[submodule "scripts"]
-	path = scripts
-	url = https://github.com/OpenVicProject/scripts

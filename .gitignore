@@ -7,10 +7,6 @@
 *.o
 *.obj
 
-# Precompiled Headers
-*.gch
-*.pch
-
 # Compiled Dynamic libraries
 *.so
 *.dylib
@@ -45,7 +41,6 @@
 # Godot 4+ specific ignores
 .godot/
 game/bin/openvic/*
-.sconsign*.dblite
 
 # Binaries
 *.o
@@ -54,7 +49,6 @@ game/bin/openvic/*
 *.obj
 *.bc
 *.pyc
-*.dblite
 *.pdb
 *.lib
 bin/*
@@ -66,9 +60,6 @@ bin/*
 *.idb
 *.exp
 
-# Build configuarion.
-/custom.py
-
 # MacOS stuff
 .DS_Store
 
@@ -77,5 +68,6 @@ bin/*
 
 /compile_commands.json
 
-# Out-of-source build directory
-/build/
+# CMake out-of-source build directory
+out/
+CMakeUserPresets.json
