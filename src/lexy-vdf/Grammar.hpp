@@ -111,15 +111,20 @@ namespace lexy_vdf::grammar {
 			lexy::fold_inplace<KeyValues>(
 				std::initializer_list<KeyValues::value_type> {},
 				[](Parser::State&, KeyValues& values, KeyValues::copy_pair_type kv) {
-					if (kv.second.index() == 0) return;
+					if (kv.second.index() == 0) {
+						return;
+					}
 					values.emplace(kv.first, kv.second);
 				},
 				[](Parser::State& state, KeyValues& values, auto file) {
-					if (auto warning = warnings::merge_check(file.file, values.MergeWith(file.file)); warning)
+					if (auto warning = warnings::merge_check(file.file, values.MergeWith(file.file)); warning) {
 						state.parse_warnings->push_back(warning.value());
+					}
 				},
 				[](KeyValues& values, KeyValues::copy_pair_type kv) {
-					if (kv.second.index() == 0) return;
+					if (kv.second.index() == 0) {
+						return;
+					}
 					values.emplace(kv.first, kv.second);
 				},
 				[](KeyValues& values, EmplaceFile file) {
@@ -168,12 +173,20 @@ namespace lexy_vdf::grammar {
 					using left_t = std::decay_t<decltype(lhs)>;
 					using right_t = std::decay_t<decltype(rhs)>;
 					if constexpr (std::is_same_v<left_t, bool>) {
-						if (!lhs && type == ConditionalType::And) return false;
-						if (lhs && type == ConditionalType::Or) return true;
+						if (!lhs && type == ConditionalType::And) {
+							return false;
+						}
+						if (lhs && type == ConditionalType::Or) {
+							return true;
+						}
 					}
 					if constexpr (std::is_same_v<right_t, bool>) {
-						if (!rhs && type == ConditionalType::And) return false;
-						if (rhs && type == ConditionalType::Or) return true;
+						if (!rhs && type == ConditionalType::And) {
+							return false;
+						}
+						if (rhs && type == ConditionalType::Or) {
+							return true;
+						}
 					}
 					bool result;
 					if constexpr (std::is_same_v<left_t, bool>) {
@@ -201,12 +214,20 @@ namespace lexy_vdf::grammar {
 					using left_t = std::decay_t<decltype(lhs)>;
 					using right_t = std::decay_t<decltype(rhs)>;
 					if constexpr (std::is_same_v<left_t, bool>) {
-						if (!lhs && type == ConditionalType::And) return false;
-						if (lhs && type == ConditionalType::Or) return true;
+						if (!lhs && type == ConditionalType::And) {
+							return false;
+						}
+						if (lhs && type == ConditionalType::Or) {
+							return true;
+						}
 					}
 					if constexpr (std::is_same_v<right_t, bool>) {
-						if (!rhs && type == ConditionalType::And) return false;
-						if (rhs && type == ConditionalType::Or) return true;
+						if (!rhs && type == ConditionalType::And) {
+							return false;
+						}
+						if (rhs && type == ConditionalType::Or) {
+							return true;
+						}
 					}
 					bool result;
 					if constexpr (std::is_same_v<left_t, bool>) {
@@ -275,8 +296,9 @@ namespace lexy_vdf::grammar {
 				return KeyValues::copy_pair_type(LEXY_MOV(key), LEXY_MOV(value));
 			},
 			[](auto&& key, auto&& value, bool conditional) -> KeyValues::copy_pair_type {
-				if (conditional)
+				if (conditional) {
 					return KeyValues::copy_pair_type(LEXY_MOV(key), LEXY_MOV(value));
+				}
 				return KeyValues::copy_pair_type();
 			});
 	};

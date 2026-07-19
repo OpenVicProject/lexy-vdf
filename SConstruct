@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 
 import os
-import platform
-import sys
-
-import SCons
 
 BINDIR = "bin"
 
@@ -14,7 +10,13 @@ env.PrependENVPath("PATH", os.getenv("PATH"))
 
 opts = env.SetupOptions()
 
-opts.Add(BoolVariable(key="build_lvdf_library", help="Build the lexy vdf library.", default=env.get("build_lvdf_library", not env.is_standalone)))
+opts.Add(
+    BoolVariable(
+        key="build_lvdf_library",
+        help="Build the lexy vdf library.",
+        default=env.get("build_lvdf_library", not env.is_standalone),
+    )
+)
 opts.Add(BoolVariable("build_lvdf_headless", "Build the lexy vdf headless executable", env.is_standalone))
 
 env.FinalizeOptions()
@@ -96,7 +98,7 @@ if env["build_lvdf_headless"]:
     headless_program = headless_env.Program(
         target=os.path.join(BINDIR, headless_name),
         source=headless_env.headless_sources,
-        PROGSUFFIX=".headless" + env["PROGSUFFIX"]
+        PROGSUFFIX=".headless" + env["PROGSUFFIX"],
     )
     default_args += [headless_program]
 
