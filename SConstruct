@@ -64,6 +64,33 @@ env.Append(CPPPATH=[[env.Dir(p) for p in [include_path, lexyvdf_variant, source_
 sources = env.GlobRecursiveVariant("*.cpp", source_path, lexyvdf_variant)
 env.lexy_vdf_sources = sources
 
+gen_commit_info = env.CommandNoCache(
+    lexyvdf_variant + "/gen/commit_info.gen.hpp",
+    env.Value(env.get_git_info("lvdf")),
+    env.Run(env.git_builder),
+    name_prefix="lvdf",
+)
+gen_license_info = env.CommandNoCache(
+    lexyvdf_variant + "/gen/license_info.gen.hpp",
+    ["COPYRIGHT", "LICENSE"],
+    env.Run(env.license_builder),
+    name_prefix="lvdf",
+)
+gen_author_info = env.CommandNoCache(
+    lexyvdf_variant + "/gen/author_info.gen.hpp",
+    "AUTHORS.md",
+    env.Run(env.author_builder),
+    name_prefix="lvdf",
+    sections={
+        "Senior Developers": "AUTHORS_SENIOR_DEVELOPERS",
+        "Developers": "AUTHORS_DEVELOPERS",
+        "Contributors": "AUTHORS_CONTRIBUTORS",
+        "Consultants": "AUTHORS_CONSULTANTS",
+    },
+)
+gen_files = gen_commit_info + gen_license_info + gen_author_info
+Default(gen_commit_info, gen_license_info, gen_author_info)
+
 library = None
 env["OBJSUFFIX"] = suffix + env["OBJSUFFIX"]
 library_name = "liblexy-vdf{}{}".format(suffix, env["LIBSUFFIX"])
