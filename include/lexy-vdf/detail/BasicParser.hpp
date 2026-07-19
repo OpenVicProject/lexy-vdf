@@ -30,7 +30,7 @@ namespace lexy_vdf::detail {
 		std::vector<ParseWarning> _warnings;
 
 		std::reference_wrapper<std::ostream> _error_stream;
-		const char* _file_path;
+		const char* _file_path = nullptr;
 		bool _has_fatal_error = false;
 	};
 }

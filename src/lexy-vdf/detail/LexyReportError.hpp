@@ -19,13 +19,13 @@ namespace lexy_vdf::detail {
 	struct _ReportError {
 		OutputIterator _iter;
 		lexy::visualization_options _opts;
-		const char* _path;
+		const char* _path = nullptr;
 
 		struct _sink {
 			OutputIterator _iter;
 			lexy::visualization_options _opts;
-			const char* _path;
-			std::size_t _count;
+			const char* _path = nullptr;
+			std::size_t _count = 0UL;
 			std::vector<ParseError> _errors;
 
 			using return_type = std::vector<ParseError>;
@@ -72,8 +72,9 @@ namespace lexy_vdf::detail {
 			}
 
 			return_type finish() && {
-				if (_count != 0)
+				if (_count != 0) {
 					*_iter++ = '\n';
+				}
 				return _errors;
 			}
 		};

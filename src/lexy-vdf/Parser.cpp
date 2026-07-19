@@ -30,7 +30,7 @@ public:
 	KeyValues* get_key_values() { return _key_values; }
 
 private:
-	KeyValues* _key_values;
+	KeyValues* _key_values = nullptr;
 };
 
 /// BufferHandler ///
@@ -188,7 +188,9 @@ void Parser::add_condition(std::string_view conditional) {
 
 bool Parser::remove_condition(std::string_view conditional) {
 	auto found = _parser_state.conditionals.find(conditional);
-	if (found == _parser_state.conditionals.end()) return false;
+	if (found == _parser_state.conditionals.end()) {
+		return false;
+	}
 	return _parser_state.conditionals.erase(*found) == 1;
 }
 
