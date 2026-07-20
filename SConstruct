@@ -41,6 +41,8 @@ env["suffix"] = suffix
 build_dir = env.Dir("build/" + suffix.lstrip(".")).abspath.replace("\\", "/")
 env["build_dir"] = build_dir
 
+env.exposed_includes = []
+
 SConscript("deps/SCsub", "env")
 
 env.lexy_vdf = {}
@@ -58,26 +60,26 @@ source_path = "src/lexy-vdf"
 include_path = "include"
 # Out-of-source build: variant tree holds object files only, not copies of the
 # source. Compile diagnostics therefore reference original source paths.
-lexyvdf_variant = build_dir + "/" + source_path
+lexyvdf_variant = build_dir + "/" + source_path  # forward slashes so VariantDir matches
+lexyvdf_variant_parent = build_dir + "/" + include_path  # variant of "src/"
 env.VariantDir(lexyvdf_variant, source_path, duplicate=False)
-env.Append(CPPPATH=[[env.Dir(p) for p in [include_path, lexyvdf_variant, source_path]]])
-sources = env.GlobRecursiveVariant("*.cpp", source_path, lexyvdf_variant)
-env.lexy_vdf_sources = sources
+
+env.Append(CPPPATH=[[env.Dir(p) for p in [lexyvdf_variant, lexyvdf_variant_parent, source_path, include_path]]])
 
 gen_commit_info = env.CommandNoCache(
-    lexyvdf_variant + "/gen/commit_info.gen.hpp",
+    lexyvdf_variant_parent + "/lexy-vdf/gen/commit_info.gen.hpp",
     env.Value(env.get_git_info("lvdf")),
     env.Run(env.git_builder),
     name_prefix="lvdf",
 )
 gen_license_info = env.CommandNoCache(
-    lexyvdf_variant + "/gen/license_info.gen.hpp",
+    lexyvdf_variant_parent + "/lexy-vdf/gen/license_info.gen.hpp",
     ["COPYRIGHT", "LICENSE"],
     env.Run(env.license_builder),
     name_prefix="lvdf",
 )
 gen_author_info = env.CommandNoCache(
-    lexyvdf_variant + "/gen/author_info.gen.hpp",
+    lexyvdf_variant_parent + "/lexy-vdf/gen/author_info.gen.hpp",
     "AUTHORS.md",
     env.Run(env.author_builder),
     name_prefix="lvdf",
@@ -90,6 +92,9 @@ gen_author_info = env.CommandNoCache(
 )
 gen_files = gen_commit_info + gen_license_info + gen_author_info
 Default(gen_commit_info, gen_license_info, gen_author_info)
+
+sources = env.GlobRecursiveVariant("*.cpp", source_path, lexyvdf_variant)
+env.lexy_vdf_sources = sources
 
 library = None
 env["OBJSUFFIX"] = suffix + env["OBJSUFFIX"]
@@ -107,6 +112,10 @@ if env["build_lvdf_library"]:
     env.lexy_vdf["LIBPATH"] = env["LIBPATH"]
     env.lexy_vdf["LIBS"] = env["LIBS"]
     env.lexy_vdf["INCPATH"] = [env.Dir(include_path)]
+    # Variant parent for generated headers (gen/*.gen.hpp); source parent for
+    # authored headers (MSVC's preprocessor needs both physically in -I).
+    env.lexy_vdf["INCPATH"] = [env.Dir(lexyvdf_variant_parent), env.Dir(include_path)] + env.exposed_includes
+    env.lexy_vdf["GEN_FILES"] = gen_files
 
 headless_program = None
 env["PROGSUFFIX"] = suffix + env["PROGSUFFIX"]
