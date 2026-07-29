@@ -8,27 +8,27 @@
             "type": "cppdbg",
             "request": "launch",
             "name": "Debug",
-            "program": "${workspaceFolder}/bin/lexy-vdf.headless.linux.template_debug.dev.x86_64",
+            "program": "${workspaceFolder}/out/build/linux-x64/bin/Debug/lexy-vdf.headless",
             "args": [],
-            "cwd": "${workspaceFolder}/bin",
-            "preLaunchTask": "dev_build",
+            "cwd": "${workspaceFolder}/out/build/linux-x64/bin/Debug",
+            "preLaunchTask": "build",
             "windows": {
-                "type": "cppvsdb",
+                "type": "cppvsdbg",
                 "request": "launch",
                 "name": "Debug",
-                "program": "${workspaceFolder}\\bin\\lexy-vdf.headless.windows.template_debug.dev.x86_64",
+                "program": "${workspaceFolder}\\out\\build\\windows-x64-md\\bin\\Debug\\lexy-vdf.headless.exe",
                 "args": [],
-                "cwd": "${workspaceFolder}\\bin",
-                "preLaunchTask": "dev_build",
+                "cwd": "${workspaceFolder}\\out\\build\\windows-x64-md\\bin\\Debug",
+                "preLaunchTask": "build",
             },
             "osx": {
-                "type": "cppvsdb",
+                "type": "cppdbg",
                 "request": "launch",
                 "name": "Debug",
-                "program": "${workspaceFolder}/bin/", // TODO: Mac executable?
+                "program": "${workspaceFolder}/out/build/macos-universal/bin/Debug/lexy-vdf.headless",
                 "args": [],
-                "cwd": "${workspaceFolder}/bin",
-                "preLaunchTask": "dev_build",
+                "cwd": "${workspaceFolder}/out/build/macos-universal/bin/Debug",
+                "preLaunchTask": "build",
             }
         }
     ]
