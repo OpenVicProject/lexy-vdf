@@ -90,6 +90,7 @@ jobs:
           configuration: Release
           target: template_release
           cmake-args: ${{ matrix.cmake-args }}
+          enable-cache: false
 
   publish-release:
     name: Publish Release
