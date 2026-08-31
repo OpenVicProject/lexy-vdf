@@ -4,7 +4,7 @@ Upstream-Contact: OpenVicProject <tbd>
 Source: https://github.com/OpenVicProject/lexy-vdf
 
 Files: *
-Comment: lexy-vdf
+Comment: Lexy-based VDF Parser
 Copyright: 2023-present, lexy-vdf contributors
 License: MIT
 
